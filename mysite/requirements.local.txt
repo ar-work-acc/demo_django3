@@ -1,0 +1,6 @@
+# For local development, don't use in container:
+# psycopg2==2.9.3
+autopep8
+ipython
+coverage
+httpie

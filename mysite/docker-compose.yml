@@ -1,0 +1,73 @@
+version: "3.9"
+
+services:
+    django_nginx:
+        build: ./_nginx
+        image: archvile/django_nginx
+        container_name: django_nginx
+        depends_on:
+            - django_app
+        deploy:
+            restart_policy:
+                condition: on-failure
+                delay: 5s
+                max_attempts: 3
+                window: 120s
+        ports:
+            - "8001:80"
+        volumes:
+            - static:/home/static/
+        networks:
+            - backend
+    django_app:
+        build: .
+        image: archvile/django_app
+        container_name: django_app
+        depends_on:
+            - postgres
+            - redis
+        deploy:
+            restart_policy:
+                condition: on-failure
+                delay: 5s
+                max_attempts: 3
+                window: 120s
+        #        ports:
+        #            - "8001:8000"
+        volumes:
+            - static:/usr/src/app/static
+            - log:/usr/src/app/log
+        networks:
+            - backend
+    postgres:
+        image: postgres:13.6-bullseye
+        container_name: postgres
+        restart: always
+        ports:
+            - "5432:5432"
+        environment:
+            POSTGRES_DB: django_app_staging
+            POSTGRES_PASSWORD: pw20220501
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        networks:
+            - backend
+
+    redis:
+        image: redis:6.2.6-bullseye
+        container_name: redis
+        restart: always
+        ports:
+            - "6379:6379"
+        command: redis-server --requirepass pw20220501
+        networks:
+            - backend
+
+networks:
+    backend:
+        driver: bridge
+
+volumes:
+    pgdata:
+    static:
+    log:

@@ -1,0 +1,9 @@
+*.pyc
+**/db.sqlite3
+_log/
+*.log
+.coverage
+htmlcov/
+.idea/
+
+mysite/static/
